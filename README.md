@@ -27,7 +27,6 @@ This repository is a complete learning resource for aspiring and practicing soft
 
 - **Comprehensive**: Covers the entire development stack from frontend to backend to AI
 - **Practical**: Real-world examples with a College Management System running throughout
-- **Multi-Framework**: Examples in Express.js, FastAPI, React, Next.js, and more
 - **Production-Ready**: Best practices, testing, deployment, and security included
 - **Free & Open**: Available to everyone for learning and reference
 
@@ -401,7 +400,8 @@ Learning/
 - [React Docs](https://react.dev/)
 - [Next.js Docs](https://nextjs.org/docs)
 - [Node.js Docs](https://nodejs.org/docs/)
-- [Python Docs](https://docs.python.org/)
+- [TypeScript Docs](https://www.typescriptlang.org/docs/)
+- [Express.js Docs](https://expressjs.com/)
 - [OpenAI API Docs](https://platform.openai.com/docs)
 
 ### Recommended Tools
