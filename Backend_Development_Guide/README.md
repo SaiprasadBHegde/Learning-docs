@@ -27,7 +27,6 @@ This guide uses a **College Management System** as a running example throughout 
 - [03 - API Layer Deep Dive](03_API_Layer.md)
 - RESTful API design
 - Express.js implementation
-- FastAPI implementation
 - Request/Response handling
 - Routing and middleware
 
@@ -62,7 +61,7 @@ This guide uses a **College Management System** as a running example throughout 
 
 ### Part 8: Data Validation and Error Handling
 - [08 - Validation and Error Handling](08_Validation_Error_Handling.md)
-- Input validation (Joi, Pydantic)
+- Input validation (Joi, Zod)
 - Custom validators
 - Error handling patterns
 - Logging and monitoring
@@ -78,12 +77,12 @@ This guide uses a **College Management System** as a running example throughout 
 
 ### Part 10: Testing and Deployment ✅
 - [10 - Testing and Deployment](10_Testing_Deployment.md)
-- Unit testing (Jest, Pytest)
-- Integration testing (Supertest, FastAPI TestClient)
+- Unit testing (Jest, Vitest)
+- Integration testing (Supertest)
 - End-to-end testing (Playwright)
 - Test-driven development (TDD)
 - Docker containerization
-- CI/CD pipelines (GitHub Actions, GitLab CI)
+- CI/CD pipelines (GitHub Actions)
 - Deployment strategies (Blue-Green, Rolling, Canary)
 - Monitoring and logging
 
@@ -112,9 +111,8 @@ Throughout this guide, we'll build a **College Management System** with the foll
 
 ## 🛠️ Technologies Covered
 
-### Backend Frameworks
-- **Express.js** (Node.js)
-- **FastAPI** (Python)
+### Backend Framework
+- **Express.js** (Node.js/TypeScript)
 
 ### Databases
 - **PostgreSQL** (Primary examples)
@@ -122,14 +120,14 @@ Throughout this guide, we'll build a **College Management System** with the foll
 - **Redis** (Caching)
 
 ### ORMs
-- **Sequelize** (Node.js)
-- **Drizzle** (Node.js/TypeScript)
-- **SQLAlchemy** (Python)
+- **Drizzle** (TypeScript-first ORM - primary)
+- **Sequelize** (Alternative ORM)
 
 ### Tools and Libraries
+- **TypeScript** for type safety
 - Authentication: JWT, Passport.js, OAuth
-- Validation: Joi, Pydantic
-- Testing: Jest, Pytest
+- Validation: Joi, Zod
+- Testing: Jest, Vitest, Supertest
 - Documentation: Swagger/OpenAPI
 - Containerization: Docker
 
@@ -138,7 +136,7 @@ Throughout this guide, we'll build a **College Management System** with the foll
 ## 📖 How to Use This Guide
 
 1. **Sequential Learning**: Start from Part 1 and work through each section
-2. **Hands-on Practice**: Code examples are provided for both Express and FastAPI
+2. **Hands-on Practice**: Code examples are provided using Express.js with TypeScript
 3. **Build Along**: Try implementing the college system yourself
 4. **Refer Back**: Use as reference when building your own projects
 
@@ -146,10 +144,11 @@ Throughout this guide, we'll build a **College Management System** with the foll
 
 ## 🎓 Prerequisites
 
-- Basic understanding of programming (JavaScript or Python)
+- Basic understanding of JavaScript/TypeScript
 - Familiarity with databases (SQL basics)
 - Understanding of HTTP and REST concepts
 - Terminal/command line basics
+- Node.js (v18+) installed
 
 ---
 
@@ -164,11 +163,11 @@ Start with [Part 1: Introduction to Backend Development](01_Introduction.md)
 By completing this guide, you will understand:
 
 ✅ **Architecture**: How to design scalable backend systems with proper separation of concerns
-✅ **API Design**: Building RESTful APIs with Express.js and FastAPI
-✅ **Database Management**: Working with PostgreSQL, ORMs, migrations, and optimization
+✅ **API Design**: Building RESTful APIs with Express.js and TypeScript
+✅ **Database Management**: Working with PostgreSQL, ORMs (Drizzle/Sequelize), migrations, and optimization
 ✅ **Security**: Implementing authentication, authorization, and security best practices
 ✅ **Performance**: Caching strategies, database optimization, and scalability patterns
-✅ **Testing**: Unit, integration, and E2E testing with TDD methodology
+✅ **Testing**: Unit, integration, and E2E testing with Jest/Vitest and TDD methodology
 ✅ **DevOps**: Containerization with Docker and CI/CD pipelines
 ✅ **Production**: Deployment strategies, monitoring, and maintaining production systems
 
@@ -177,8 +176,8 @@ By completing this guide, you will understand:
 ## 📊 Guide Statistics
 
 - **10 comprehensive parts** covering all aspects of backend development
-- **Both Express.js (Node.js) and FastAPI (Python)** implementations
-- **3 ORMs**: Sequelize, Drizzle, and SQLAlchemy
+- **Express.js with TypeScript** - modern, type-safe backend development
+- **2 ORMs**: Drizzle (TypeScript-first) and Sequelize
 - **Real-world examples** using College Management System
 - **Production-ready code** with error handling and best practices
 - **~250KB** of detailed content with code examples

@@ -75,11 +75,6 @@ test('should enroll student in course', async () => {
 - **Mocha + Chai**: Flexible, require separate assertion library
 - **Vitest**: Fast, Vite-powered
 
-**Python**:
-- **pytest**: Most popular, powerful fixtures
-- **unittest**: Built-in, more verbose
-- **FastAPI TestClient**: Built on top of Starlette
-
 ---
 
 ## Unit Testing
@@ -360,78 +355,6 @@ describe('Validation Utils', () => {
 });
 ```
 
-### Python Unit Tests with pytest
-
-```python
-# tests/test_student_service.py
-import pytest
-from unittest.mock import Mock, patch, AsyncMock
-from services.student_service import StudentService
-from models.student import Student
-
-@pytest.fixture
-def student_service():
-    return StudentService()
-
-@pytest.fixture
-def mock_student():
-    return {
-        'id': '123',
-        'first_name': 'John',
-        'last_name': 'Doe',
-        'email': 'john@example.com'
-    }
-
-class TestStudentService:
-    @patch('services.student_service.student_repository')
-    @patch('services.student_service.cache_service')
-    async def test_get_student_by_id_cache_hit(
-        self, mock_cache, mock_repo, student_service, mock_student
-    ):
-        """Should return student from cache if available"""
-        # Arrange
-        mock_cache.get = AsyncMock(return_value=mock_student)
-
-        # Act
-        result = await student_service.get_student_by_id('123')
-
-        # Assert
-        assert result == mock_student
-        mock_cache.get.assert_called_once_with('student:123')
-        mock_repo.find_by_id.assert_not_called()
-
-    @patch('services.student_service.student_repository')
-    @patch('services.student_service.cache_service')
-    async def test_get_student_by_id_cache_miss(
-        self, mock_cache, mock_repo, student_service, mock_student
-    ):
-        """Should fetch from database on cache miss"""
-        # Arrange
-        mock_cache.get = AsyncMock(return_value=None)
-        mock_repo.find_by_id = AsyncMock(return_value=mock_student)
-
-        # Act
-        result = await student_service.get_student_by_id('123')
-
-        # Assert
-        assert result == mock_student
-        mock_repo.find_by_id.assert_called_once_with('123')
-        mock_cache.set.assert_called_once()
-
-    @patch('services.student_service.student_repository')
-    @patch('services.student_service.cache_service')
-    async def test_get_student_not_found(
-        self, mock_cache, mock_repo, student_service
-    ):
-        """Should raise NotFoundError when student doesn't exist"""
-        # Arrange
-        mock_cache.get = AsyncMock(return_value=None)
-        mock_repo.find_by_id = AsyncMock(return_value=None)
-
-        # Act & Assert
-        with pytest.raises(NotFoundError, match="Student with ID 999 not found"):
-            await student_service.get_student_by_id('999')
-```
 
 ---
 
@@ -651,82 +574,6 @@ describe('Student API Integration Tests', () => {
 });
 ```
 
-### FastAPI Integration Tests
-
-```python
-# tests/test_students_api.py
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from main import app
-from database import Base, get_db
-
-# Test database
-TEST_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Override dependency
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-app.dependency_overrides[get_db] = override_get_db
-
-@pytest.fixture
-def client():
-    # Create tables
-    Base.metadata.create_all(bind=engine)
-
-    with TestClient(app) as test_client:
-        yield test_client
-
-    # Drop tables
-    Base.metadata.drop_all(bind=engine)
-
-def test_create_student(client):
-    """Should create a new student"""
-    response = client.post("/api/students", json={
-        "first_name": "John",
-        "last_name": "Doe",
-        "email": "john@example.com",
-        "department": "CS",
-        "date_of_birth": "2000-01-01"
-    })
-
-    assert response.status_code == 201
-    data = response.json()
-    assert data["first_name"] == "John"
-    assert data["email"] == "john@example.com"
-    assert "id" in data
-
-def test_get_student(client):
-    """Should retrieve student by ID"""
-    # Create student
-    create_response = client.post("/api/students", json={
-        "first_name": "Jane",
-        "last_name": "Smith",
-        "email": "jane@example.com",
-        "department": "Math",
-        "date_of_birth": "2000-02-01"
-    })
-    student_id = create_response.json()["id"]
-
-    # Get student
-    response = client.get(f"/api/students/{student_id}")
-
-    assert response.status_code == 200
-    assert response.json()["email"] == "jane@example.com"
-
-def test_get_nonexistent_student(client):
-    """Should return 404 for non-existent student"""
-    response = client.get("/api/students/99999")
-    assert response.status_code == 404
-```
 
 ---
 
@@ -1049,35 +896,6 @@ docker-compose down
 docker-compose up -d --build
 ```
 
-### Python/FastAPI Dockerfile
-
-```dockerfile
-# Dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application
-COPY . .
-
-# Expose port
-EXPOSE 8000
-
-# Run application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
 
 ---
 

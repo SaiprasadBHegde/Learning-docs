@@ -103,25 +103,6 @@ const isValid = await verifyPassword("mypassword123", hashedPassword);
 // true
 ```
 
-**Python**:
-```python
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Hash password
-def hash_password(plain_password: str) -> str:
-    return pwd_context.hash(plain_password)
-
-# Verify password
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-# Usage
-hashed = hash_password("mypassword123")
-is_valid = verify_password("mypassword123", hashed)  # True
-```
-
 ### Complete Registration Flow
 
 **services/authService.js**:
@@ -389,61 +370,6 @@ router.get('/api/students/me', authenticate, studentController.getCurrentStudent
 //   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-### JWT in FastAPI
-
-**utils/jwt.py**:
-```python
-from datetime import datetime, timedelta
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-
-SECRET_KEY = "your-secret-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 7 days
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-def verify_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
-    except JWTError:
-        raise ValueError("Invalid token")
-```
-
-**Dependencies**:
-```python
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from utils.jwt import verify_token
-
-security = HTTPBearer()
-
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-):
-    token = credentials.credentials
-    try:
-        payload = verify_token(token)
-        return payload
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials"
-        )
-
-# Usage
-@router.get("/me")
-async def get_current_student(current_user = Depends(get_current_user)):
-    return current_user
-```
-
 ---
 
 ## Session-Based Authentication
@@ -699,43 +625,6 @@ async submitGrade(req, res) {
 }
 ```
 
-### FastAPI RBAC
-
-```python
-from fastapi import Depends, HTTPException, status
-from enum import Enum
-
-class Role(str, Enum):
-    STUDENT = "student"
-    PROFESSOR = "professor"
-    ADMIN = "admin"
-
-def require_role(allowed_roles: list[Role]):
-    def role_checker(current_user = Depends(get_current_user)):
-        if current_user["role"] not in allowed_roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions"
-            )
-        return current_user
-    return role_checker
-
-# Usage
-@router.post("/courses")
-async def create_course(
-    course_data: CourseCreate,
-    current_user = Depends(require_role([Role.ADMIN]))
-):
-    return await course_service.create(course_data)
-
-@router.post("/grades")
-async def submit_grade(
-    grade_data: GradeCreate,
-    current_user = Depends(require_role([Role.PROFESSOR, Role.ADMIN]))
-):
-    return await grade_service.submit(grade_data)
-```
-
 ---
 
 ## OAuth 2.0
@@ -911,51 +800,6 @@ class AuthController {
 module.exports = new AuthController();
 ```
 
-### Complete Auth System (FastAPI)
-
-**routes/auth.py**:
-```python
-from fastapi import APIRouter, Depends, HTTPException, status
-from schemas.auth import LoginRequest, RegisterRequest, TokenResponse
-from services.auth_service import AuthService
-
-router = APIRouter()
-auth_service = AuthService()
-
-@router.post("/register", response_model=TokenResponse)
-async def register(data: RegisterRequest):
-    try:
-        result = await auth_service.register(data.dict())
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@router.post("/login", response_model=TokenResponse)
-async def login(data: LoginRequest):
-    try:
-        result = await auth_service.login(data.email, data.password)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
-
-@router.get("/me")
-async def get_current_user(current_user = Depends(get_current_user)):
-    return current_user
-
-@router.post("/change-password")
-async def change_password(
-    current_password: str,
-    new_password: str,
-    current_user = Depends(get_current_user)
-):
-    await auth_service.change_password(
-        current_user["id"],
-        current_password,
-        new_password
-    )
-    return {"message": "Password changed successfully"}
-```
-
 ---
 
 ## Security Best Practices
@@ -1050,10 +894,10 @@ res.json({ accessToken, refreshToken });
 1. **Authentication**: Verify user identity (who are you?)
 2. **Authorization**: Check permissions (what can you do?)
 3. **Never store plain passwords** - always hash with bcrypt
-4. **JWT**: Stateless, scalable, good for APIs
-5. **Sessions**: Stateful, easy to revoke, good for web apps
+4. **JWT**: Stateless, scalable, good for APIs and mobile apps
+5. **Sessions**: Stateful, easy to revoke, good for traditional web apps
 6. **RBAC**: Role-based permissions (student, professor, admin)
-7. **OAuth**: Login with third-party providers
+7. **OAuth 2.0**: Login with third-party providers (Google, GitHub, etc.)
 8. **Security**: HTTPS, secure cookies, rate limiting, strong passwords
 
 ---

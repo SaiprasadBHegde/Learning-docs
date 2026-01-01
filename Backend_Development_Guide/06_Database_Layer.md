@@ -9,9 +9,8 @@
 2. [What is an ORM?](#what-is-an-orm)
 3. [Sequelize (Node.js)](#sequelize-nodejs)
 4. [Drizzle ORM (Node.js)](#drizzle-orm-nodejs)
-5. [SQLAlchemy (Python)](#sqlalchemy-python)
-6. [Migrations](#migrations)
-7. [Database Relationships](#database-relationships)
+5. [Migrations](#migrations)
+6. [Database Relationships](#database-relationships)
 
 ---
 
@@ -856,163 +855,6 @@ const studentsWithCourses = await db
 
 ---
 
-## SQLAlchemy (Python)
-
-### Setup
-
-```bash
-pip install sqlalchemy psycopg2-binary alembic
-```
-
-**db/database.py**:
-```python
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-DATABASE_URL = "postgresql://user:password@localhost/college_db"
-
-engine = create_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# Dependency for FastAPI
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-```
-
-### Models
-
-**models/student.py**:
-```python
-from sqlalchemy import Column, String, Integer, Date, Numeric, Enum, DateTime
-from sqlalchemy.orm import relationship
-from db.database import Base
-from datetime import datetime
-import uuid
-
-class Student(Base):
-    __tablename__ = "students"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    first_name = Column(String(50), nullable=False)
-    last_name = Column(String(50), nullable=False)
-    email = Column(String(255), unique=True, nullable=False, index=True)
-    date_of_birth = Column(Date)
-    department = Column(String(100), nullable=False, index=True)
-    enrollment_year = Column(Integer, nullable=False)
-    status = Column(
-        Enum('active', 'inactive', 'graduated', 'suspended', name='student_status'),
-        default='active',
-        index=True
-    )
-    gpa = Column(Numeric(3, 2), default=0.00)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Relationships
-    enrollments = relationship(
-        "Enrollment",
-        back_populates="student",
-        cascade="all, delete-orphan"
-    )
-    courses = relationship(
-        "Course",
-        secondary="enrollments",
-        back_populates="students"
-    )
-
-    @property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
-
-    def __repr__(self):
-        return f"<Student {self.full_name}>"
-```
-
-**models/course.py**:
-```python
-from sqlalchemy import Column, String, Integer, Text, ARRAY, ForeignKey
-from sqlalchemy.orm import relationship
-from db.database import Base
-
-class Course(Base):
-    __tablename__ = "courses"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    code = Column(String(20), unique=True, nullable=False, index=True)
-    name = Column(String(200), nullable=False)
-    description = Column(Text)
-    credits = Column(Integer, nullable=False)
-    max_capacity = Column(Integer, default=30)
-    department = Column(String(100), nullable=False, index=True)
-    professor_id = Column(String, ForeignKey("professors.id"))
-    prerequisites = Column(ARRAY(String), default=[])
-
-    # Relationships
-    professor = relationship("Professor", back_populates="courses")
-    enrollments = relationship(
-        "Enrollment",
-        back_populates="course",
-        cascade="all, delete-orphan"
-    )
-    students = relationship(
-        "Student",
-        secondary="enrollments",
-        back_populates="courses"
-    )
-
-    def __repr__(self):
-        return f"<Course {self.code}: {self.name}>"
-```
-
-### Querying with SQLAlchemy
-
-```python
-from sqlalchemy import and_, or_, func
-from models.student import Student
-from models.enrollment import Enrollment
-
-# Simple queries
-students = db.query(Student).filter(Student.status == "active").all()
-student = db.query(Student).filter(Student.email == email).first()
-
-# Complex queries
-students = db.query(Student)\
-    .filter(
-        and_(
-            Student.department == "CS",
-            Student.gpa >= 3.5
-        )
-    )\
-    .order_by(Student.gpa.desc())\
-    .limit(10)\
-    .all()
-
-# Join queries
-results = db.query(Student, Enrollment, Course)\
-    .join(Enrollment, Student.id == Enrollment.student_id)\
-    .join(Course, Enrollment.course_id == Course.id)\
-    .filter(Course.code == "CS101")\
-    .all()
-
-# Aggregation
-dept_stats = db.query(
-    Student.department,
-    func.count(Student.id).label('count'),
-    func.avg(Student.gpa).label('avg_gpa')
-)\
-.filter(Student.status == "active")\
-.group_by(Student.department)\
-.all()
-```
-
----
-
 ## Migrations
 
 ### Why Migrations?
@@ -1105,22 +947,6 @@ npx drizzle-kit generate:pg
 npx drizzle-kit push:pg
 ```
 
-### Alembic (SQLAlchemy)
-
-```bash
-# Initialize
-alembic init alembic
-
-# Generate migration
-alembic revision --autogenerate -m "create students table"
-
-# Apply
-alembic upgrade head
-
-# Rollback
-alembic downgrade -1
-```
-
 ---
 
 ## Database Relationships
@@ -1164,11 +990,10 @@ Course.belongsToMany(Student, {
 ## Key Takeaways
 
 1. **ORMs** map objects to database tables
-2. **Sequelize**: Mature, feature-rich
-3. **Drizzle**: Type-safe, modern, performant
-4. **SQLAlchemy**: Python's most popular ORM
-5. **Migrations** version control your schema
-6. **Relationships** define how data connects
+2. **Sequelize**: Mature, feature-rich Node.js ORM
+3. **Drizzle**: Type-safe, modern, performant Node.js ORM
+4. **Migrations** version control your schema
+5. **Relationships** define how data connects
 
 ---
 

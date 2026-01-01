@@ -323,18 +323,6 @@ app.get('/api/students', async (req, res) => {
 });
 ```
 
-**Python**:
-```python
-# FastAPI example
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/api/students")
-async def get_students():
-    students = await Student.find_all()
-    return students
-```
 
 ### Databases
 
@@ -353,11 +341,6 @@ async def get_students():
 - Express.js (minimal, flexible)
 - NestJS (structured, TypeScript)
 - Fastify (performance-focused)
-
-**Python**:
-- FastAPI (modern, async)
-- Flask (minimal, flexible)
-- Django (full-featured)
 
 ### ORMs (Object-Relational Mapping)
 
@@ -380,25 +363,6 @@ const student = await Student.create({
 });
 ```
 
-**SQLAlchemy (Python)**:
-```python
-from sqlalchemy import Column, String
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
-
-class Student(Base):
-    __tablename__ = 'students'
-
-    id = Column(String, primary_key=True)
-    first_name = Column(String)
-    email = Column(String)
-
-# Use it
-student = Student(first_name="John", email="john@college.edu")
-db.add(student)
-db.commit()
-```
 
 ---
 

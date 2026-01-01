@@ -37,9 +37,9 @@ This repository is a complete learning resource for aspiring and practicing soft
 
 ### [Backend Development Guide](Backend_Development_Guide/)
 
-A complete journey through modern backend architecture using a layered approach.
+A complete journey through modern backend architecture using a layered approach with Express.js and TypeScript.
 
-**Technologies**: Express.js (Node.js), FastAPI (Python), PostgreSQL, MongoDB, Redis
+**Technologies**: Express.js (Node.js), TypeScript, PostgreSQL, MongoDB, Redis
 
 **Topics Covered**:
 - Layered Architecture (API, Business Logic, Data Access, Database)
@@ -50,7 +50,7 @@ A complete journey through modern backend architecture using a layered approach.
 - Testing (Unit, Integration, E2E)
 - Deployment & CI/CD
 
-**ORMs**: Sequelize, Drizzle, SQLAlchemy
+**ORMs**: Drizzle (TypeScript-first), Sequelize
 
 **10 comprehensive chapters** | [Start Learning →](Backend_Development_Guide/README.md)
 
@@ -121,7 +121,7 @@ A deep dive into modern JavaScript and TypeScript.
 3. **Backend**: [Backend Development Guide](Backend_Development_Guide/README.md)
 4. **Build**: Create the complete College Management System (examples throughout both guides)
 
-**Outcome**: Build production-ready full-stack applications with React/Next.js + Express/FastAPI
+**Outcome**: Build production-ready full-stack applications with React/Next.js + Express.js (TypeScript)
 
 ---
 
@@ -168,7 +168,8 @@ A deep dive into modern JavaScript and TypeScript.
 - Text editor or IDE (VS Code recommended)
 
 **For Backend**:
-- Node.js (v18+) or Python (3.9+)
+- Node.js (v18+)
+- Basic understanding of JavaScript/TypeScript
 - Basic understanding of databases
 
 **For Frontend**:
@@ -177,7 +178,7 @@ A deep dive into modern JavaScript and TypeScript.
 - Modern web browser
 
 **For GenAI**:
-- Python 3.9+ (for API examples)
+- Node.js or Python (for API examples)
 - OpenAI/Anthropic API key (optional, for hands-on practice)
 
 ### Quick Start
@@ -297,13 +298,14 @@ Contributions are welcome and encouraged! This is an open-source learning resour
   - Generative AI (Complete guide)
   - JavaScript/TypeScript (Complete guide)
 
-- **Technologies Covered**: 20+
-  - Languages: JavaScript, TypeScript, Python
+- **Technologies Covered**: 15+
+  - Languages: JavaScript, TypeScript
   - Frontend: React, Next.js, Tailwind CSS, TanStack Query
-  - Backend: Express.js, FastAPI, REST APIs
+  - Backend: Express.js, REST APIs
   - Databases: PostgreSQL, MongoDB, Redis
+  - ORMs: Drizzle, Sequelize
   - AI: OpenAI, Anthropic, Hugging Face
-  - Testing: Jest, Pytest, Playwright
+  - Testing: Jest, Vitest, Playwright
   - DevOps: Docker, CI/CD, GitHub Actions
 
 - **Content**: ~600KB of detailed guides with production-ready code examples
@@ -407,7 +409,7 @@ Learning/
 - **API Testing**: Postman, Insomnia
 - **Version Control**: Git, GitHub
 - **Containerization**: Docker
-- **Package Managers**: npm, yarn, pnpm, pip
+- **Package Managers**: npm, yarn, pnpm
 
 ### Stay Connected
 - Open issues for questions or discussions

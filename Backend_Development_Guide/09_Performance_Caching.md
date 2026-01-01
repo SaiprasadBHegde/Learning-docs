@@ -303,85 +303,6 @@ class StudentService {
 module.exports = new StudentService();
 ```
 
-**Python/FastAPI Redis Caching**:
-
-```python
-# config/redis.py
-import redis.asyncio as redis
-from typing import Optional, Any
-import json
-import os
-
-class RedisCache:
-    def __init__(self):
-        self.redis: Optional[redis.Redis] = None
-
-    async def connect(self):
-        self.redis = await redis.from_url(
-            os.getenv('REDIS_URL', 'redis://localhost:6379'),
-            encoding='utf-8',
-            decode_responses=True
-        )
-        print("✅ Redis connected")
-
-    async def disconnect(self):
-        if self.redis:
-            await self.redis.close()
-
-    async def get(self, key: str) -> Optional[Any]:
-        try:
-            data = await self.redis.get(key)
-            return json.loads(data) if data else None
-        except Exception as e:
-            print(f"Cache get error: {e}")
-            return None
-
-    async def set(self, key: str, value: Any, ttl: int = 300):
-        try:
-            await self.redis.setex(key, ttl, json.dumps(value))
-            return True
-        except Exception as e:
-            print(f"Cache set error: {e}")
-            return False
-
-    async def delete(self, key: str):
-        try:
-            await self.redis.delete(key)
-            return True
-        except Exception as e:
-            print(f"Cache delete error: {e}")
-            return False
-
-    async def delete_pattern(self, pattern: str):
-        try:
-            keys = await self.redis.keys(pattern)
-            if keys:
-                await self.redis.delete(*keys)
-            return True
-        except Exception as e:
-            print(f"Cache delete pattern error: {e}")
-            return False
-
-cache = RedisCache()
-
-# Service using cache
-class StudentService:
-    async def get_student_by_id(self, student_id: str):
-        cache_key = f"student:{student_id}"
-
-        # Try cache first
-        cached = await cache.get(cache_key)
-        if cached:
-            return cached
-
-        # Fetch from database
-        student = await student_repository.find_by_id(student_id)
-
-        # Store in cache
-        await cache.set(cache_key, student, ttl=600)
-
-        return student
-```
 
 ### Caching Strategies
 
@@ -945,44 +866,6 @@ function tierBasedLimiter(req, res, next) {
 }
 ```
 
-### FastAPI Rate Limiting
-
-```python
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
-from datetime import datetime, timedelta
-import redis.asyncio as redis
-
-app = FastAPI()
-redis_client = redis.from_url("redis://localhost:6379")
-
-async def rate_limit(request: Request, max_requests: int = 100, window_seconds: int = 900):
-    # Use user ID or IP as key
-    user_id = request.state.user.id if hasattr(request.state, 'user') else request.client.host
-    key = f"rl:{user_id}"
-
-    # Increment counter
-    count = await redis_client.incr(key)
-
-    # Set expiry on first request
-    if count == 1:
-        await redis_client.expire(key, window_seconds)
-
-    # Check limit
-    if count > max_requests:
-        ttl = await redis_client.ttl(key)
-        raise HTTPException(
-            status_code=429,
-            detail=f"Rate limit exceeded. Try again in {ttl} seconds."
-        )
-
-    return count
-
-@app.get("/api/students")
-async def get_students(request: Request):
-    await rate_limit(request, max_requests=100, window_seconds=900)
-    # ... handle request
-```
 
 ---
 
@@ -1115,18 +998,6 @@ pm2 monit
 pm2 logs
 ```
 
-**Gunicorn Workers** (Python):
-
-```bash
-# Install
-pip install gunicorn
-
-# Run with multiple workers
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
-
-# -w 4: 4 worker processes
-# -k: Worker class (uvicorn for async)
-```
 
 ---
 

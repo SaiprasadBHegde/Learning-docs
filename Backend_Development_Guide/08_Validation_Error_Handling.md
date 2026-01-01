@@ -82,7 +82,7 @@ credits: 15  // ✅ Within limit
 
 ## Validation Libraries
 
-### Joi (Node.js)
+### Joi
 
 ```bash
 npm install joi
@@ -244,61 +244,6 @@ const passwordSchema = Joi.string()
     });
 ```
 
-### Pydantic (Python/FastAPI)
-
-```python
-from pydantic import BaseModel, EmailStr, Field, validator
-from datetime import date
-from typing import Optional
-from enum import Enum
-
-class Department(str, Enum):
-    CS = "CS"
-    MATH = "Math"
-    PHYSICS = "Physics"
-    ENGLISH = "English"
-
-class StudentCreate(BaseModel):
-    first_name: str = Field(..., min_length=1, max_length=50)
-    last_name: str = Field(..., min_length=1, max_length=50)
-    email: EmailStr
-    date_of_birth: Optional[date] = None
-    department: Department
-    enrollment_year: int = Field(..., ge=2000, le=2100)
-
-    @validator('date_of_birth')
-    def validate_date_of_birth(cls, v):
-        if v and v > date.today():
-            raise ValueError('Date of birth cannot be in the future')
-        return v
-
-    @validator('enrollment_year')
-    def validate_enrollment_year(cls, v):
-        current_year = date.today().year
-        if v > current_year + 1:
-            raise ValueError('Enrollment year cannot be more than 1 year in future')
-        return v
-
-class EnrollmentCreate(BaseModel):
-    student_id: str = Field(..., regex="^[0-9a-f-]{36}$")
-    course_id: str = Field(..., regex="^[0-9a-f-]{36}$")
-    semester: str = Field(..., regex="^(Spring|Summer|Fall) \\d{4}$")
-
-class GradeSubmit(BaseModel):
-    grade: str = Field(...)
-
-    @validator('grade')
-    def validate_grade(cls, v):
-        valid_grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'F']
-        if v not in valid_grades:
-            raise ValueError(f'Invalid grade. Must be one of: {", ".join(valid_grades)}')
-        return v
-
-# FastAPI automatically validates
-@router.post("/students")
-async def create_student(student: StudentCreate):  # Automatically validated!
-    return await student_service.create(student.dict())
-```
 
 ---
 
@@ -463,69 +408,6 @@ router.get('/students/:id', asyncHandler(async (req, res) => {
 }));
 ```
 
-### FastAPI Error Handling
-
-```python
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-from pydantic import ValidationError
-
-app = FastAPI()
-
-# Custom exception classes
-class AppError(Exception):
-    def __init__(self, message: str, status_code: int = 500):
-        self.message = message
-        self.status_code = status_code
-
-class NotFoundError(AppError):
-    def __init__(self, resource: str = "Resource"):
-        super().__init__(f"{resource} not found", 404)
-
-class ConflictError(AppError):
-    def __init__(self, message: str):
-        super().__init__(message, 409)
-
-# Global exception handlers
-@app.exception_handler(AppError)
-async def app_error_handler(request: Request, exc: AppError):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "success": False,
-            "error": exc.message
-        }
-    )
-
-@app.exception_handler(RequestValidationError)
-async def validation_error_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={
-            "success": False,
-            "error": "Validation error",
-            "details": exc.errors()
-        }
-    )
-
-@app.exception_handler(Exception)
-async def global_error_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "success": False,
-            "error": "Internal server error"
-        }
-    )
-
-# Usage
-async def get_student(student_id: str):
-    student = await student_repo.find_by_id(student_id)
-    if not student:
-        raise NotFoundError("Student")
-    return student
-```
 
 ---
 
@@ -687,47 +569,6 @@ logger.info('Student enrolled', {
 });
 ```
 
-### Python Logging
-
-```python
-import logging
-from logging.handlers import RotatingFileHandler
-import json
-from datetime import datetime
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
-logger = logging.getLogger(__name__)
-
-# File handler with rotation
-file_handler = RotatingFileHandler(
-    'logs/app.log',
-    maxBytes=10485760,  # 10MB
-    backupCount=5
-)
-
-file_handler.setFormatter(
-    logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-)
-
-logger.addHandler(file_handler)
-
-# Usage
-logger.info(f"Student enrolled", extra={
-    "student_id": student_id,
-    "course_id": course_id,
-    "semester": semester
-})
-
-logger.error(f"Enrollment failed", extra={
-    "error": str(error),
-    "student_id": student_id
-}, exc_info=True)
-```
 
 ---
 
@@ -821,7 +662,7 @@ setInterval(() => {
 ## Key Takeaways
 
 1. **Validate early** - At API layer, before processing
-2. **Use validation libraries** - Joi, Pydantic for consistency
+2. **Use validation libraries** - Joi, Zod for consistency
 3. **Custom error classes** - Domain-specific, informative
 4. **Centralized error handling** - One place to handle all errors
 5. **Structured logging** - JSON format, easy to query
